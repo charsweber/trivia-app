@@ -15,8 +15,8 @@ function getTrivia(difficulty) {
 	  	var trivia = questions;
 	  	for (var i = 0; i < questions.length; i++) {
 			// var triviaQ = result.results.question;
-			var answers = [];
 			console.log(questions[i].question);
+		  	var answers = [];
 			function shuffleArray(array) {
 			    for (var i = array.length - 1; i > 0; i--) {
 			        var j = Math.floor(Math.random() * (i + 1));
@@ -26,22 +26,32 @@ function getTrivia(difficulty) {
 			    }
 			};
 			if (questions[i].type == "multiple") {
-				$('#main').append(formatTrivia(questions[i]));
 				answers.push(questions[i].correct_answer, questions[i].incorrect_answers[0], questions[i].incorrect_answers[1], questions[i].incorrect_answers[2]);
 				shuffleArray(answers);
 				console.log(answers);
+				$('#main').append(formatTrivia(questions[i], answers));
 			} else {
-				$('#main').append(formatTorF(questions[i]));
 				answers.push(questions[i].correct_answer, questions[i].incorrect_answers[0]);
 				shuffleArray(answers);
 				console.log(answers);
+				$('#main').append(formatTorF(questions[i], answers));
 			}
 		}
 	  }
 	});
 }
 
+var today = new Date();
+var dd = today.getDate();
+var day = today.getDay();
+var mm = today.getMonth();
+var yyyy = today.getFullYear();
+var monthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 $(document).ready(function() {
+	// var count = 0;
+	$('.intro').prepend("<h5>" + daysOfWeek[day].toLowerCase() + ", " + monthsOfYear[mm].toLowerCase() + " " + dd + ", " + yyyy + "</h5>");
 	$('#easy').click(function() {
 		getTrivia(difficulty[0]);
 		$('.intro').hide();
@@ -63,30 +73,50 @@ $(document).ready(function() {
 	$('#hidden').click(function() {
 		location.reload();
 	});
-	
+
+	// if user clicks on trivia-q element, run it against that trivia.correct_answer
+
+	$(document).on('click', 'h4', function() {
+		$(this).toggle();
+		$(this).next().removeAttr('id');
+	});
+
+	$(document).on('click', 'li', function() {
+		var compare = $(this).parent().next()[0].textContent;
+		if (this.textContent == compare) {
+			$(this).css('color', 'lime');
+			$(this).siblings().css('color', 'lightcoral');
+			$(this).parent().parent().append('<i class="far fa-check-circle fa-4x"></i>');
+			// count++;
+		} else {
+			$(this).css('color', 'lightcoral');
+			// $(this).prepend('<i class="fas fa-times"></i>');
+		}
+	})
 });
 
-function formatTrivia(trivia) {
+function formatTrivia(trivia, response) {
 	var result = '<div class="trivia-q">' +  
         '<h2>' + trivia.question + '</h2>' + 
-        '<ul><a href="#"><li> a) ' + trivia.correct_answer + '</li></a>' +
-        '<a href="#"><li> b) ' + trivia.incorrect_answers[0] + '</li></a>' +
-        '<a href="#"><li> c) ' + trivia.incorrect_answers[1] + '</li></a>' +
-        '<a href="#"><li> d) ' + trivia.incorrect_answers[2] + '</li></a></ul>' + 
+        '<ul><li>' + response[0] + '</li>' +
+        '<li>' + response[1] + '</li>' +
+        '<li>' + response[2] + '</li>' +
+        '<li>' + response[3] + '</li></ul>' +  
+        '<h5 id="hidden">' + trivia.correct_answer + '</h5>' +  
       '</div>';
       return result;
 } 
 
-function formatTorF(trivia) {
+function formatTorF(trivia, response) {
 	var result = '<div class="trivia-q">' +  
         '<h2>' + trivia.question + '</h2>' + 
-        '<ul><a href="#"><li> a) ' + trivia.correct_answer + '</li></a>' +
-        '<a href="#"><li> b) ' + trivia.incorrect_answers[0] + '</li></a></ul>' + 
+        '<ul><li>' + response[0] + '</li>' +
+        '<li>' + response[1] + '</li></ul>' + 
+        '<h5 id="hidden">' + trivia.correct_answer + '</h5>' + 
       '</div>';
+      // could i hide the correct answer here, and then if they click one of the a links, check the equality that way?
       return result;
 } 
-
-// shuffle correct answer and incorrect answers
 
 
 // results.question
